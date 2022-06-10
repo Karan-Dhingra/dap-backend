@@ -1,57 +1,7 @@
-const models = require('../models/User')
 const CryptoJS = require('crypto-js')
 const crypto = require('crypto')
-
-const ChangePassword = async (req, res) => {
-    const { previousPass, newPass, userId } = req.body
-    console.log({ previousPass, newPass, userId })
-    if (!userId || !previousPass || !newPass) {
-        return res.json({ status: 400, msg: 'All fields required' })
-    }
-    try {
-        const user = await models.users.findOne({ _id: userId })
-        // console.log(user)
-        // console.log(user.password, process.env.PASS_SEC)
-        if (user) {
-            const hashedPassword = CryptoJS.AES.decrypt(
-                user.password,
-                process.env.PASS_SEC
-            ).toString(CryptoJS.enc.Utf8)
-            // console.log('PASS', hashedPassword.length)
-            if (hashedPassword.length > 0) {
-                // console.log('PASS 2', hashedPassword.length)
-                if (hashedPassword !== previousPass) {
-                    // console.log('PASS 3', previousPass.length)
-                    return res.status(401).json({ msg: 'Wrong Password!!' })
-                } else {
-                    let newHashedPassword = CryptoJS.AES.encrypt(
-                        newPass,
-                        process.env.PASS_SEC
-                    ).toString()
-                    // console.log(newHashedPassword)
-                    // console.log(user.password)
-                    const updatePass = await models.users.updateOne(
-                        { _id: userId },
-                        { $set: { password: newHashedPassword } }
-                    )
-                    // console.log(updatePass)
-                    // console.log(user.password)
-                    return res.status(200).json({
-                        msg: 'Password has been successfully updated',
-                    })
-                }
-            } else {
-                return res.status(403).json({ msg: 'Wrong Password!!' })
-            }
-            return
-        } else {
-            return res.json({ status: 400, msg: 'User not exists!' })
-        }
-    } catch (err) {
-        console.log(err)
-        res.status(501).json({ msg: err.msg })
-    }
-}
+const Nft = require('../models/Nft')
+const User = require('../models/User')
 
 const updateProfile = async (req, res) => {
     const { profilePic, userId } = req.body
@@ -59,12 +9,12 @@ const updateProfile = async (req, res) => {
         return res.json({ status: 400, msg: 'All fields required' })
     }
     try {
-        const user = await models.users.findOne({ _id: userId })
+        const user = await User.findOne({ _id: userId })
         // console.log(user)
         console.log(profilePic)
         // console.log(user.password, process.env.PASS_SEC)
         if (user) {
-            const updateProfile = await models.users.updateOne(
+            const updateProfile = await User.updateOne(
                 { _id: userId },
                 { $set: { profilePic: profilePic } }
             )
@@ -94,4 +44,40 @@ const updateProfile = async (req, res) => {
     }
 }
 
-module.exports = { ChangePassword, updateProfile }
+const participateEvent = async (req, res) => {
+    try {
+        const { _id, participatedBy } = req.body
+        if (!_id || !participatedBy) {
+            res.status(401).json({ msg: 'You are not allowed to participate' })
+            return
+        }
+        const nft = await Nft.findOne({ _id })
+        if (nft) {
+            if (nft.isParticipated) {
+                res.status(401).json({ msg: 'Already Participated' })
+                return
+            } else {
+                const updateNft = await Nft.updateOne(
+                    { _id },
+                    {
+                        $set: {
+                            isParticipated: true,
+                            participatedBy,
+                        },
+                    }
+                )
+
+                res.status(200).json({ msg: 'Success', data: updateNft })
+                return
+            }
+        } else {
+            res.status(500).json({ msg: 'Something went wrong' })
+            return
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(501).json({ msg: err.toString() })
+    }
+}
+
+module.exports = { updateProfile, participateEvent }

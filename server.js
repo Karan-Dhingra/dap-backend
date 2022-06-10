@@ -15,6 +15,7 @@ const rateLimiter = require('express-rate-limit')
 const authRouter = require('./routes/authRoute')
 // const { notFound, errorHandler } = require('./middleware/errorMiddleware')
 const userRouter = require('./routes/userRoute')
+const nftRouter = require('./routes/nftRoute')
 
 // Database connection
 DBConnect()
@@ -37,6 +38,7 @@ app.use(express.static('./public'))
 
 // Routes
 app.use('/auth', authRouter)
+app.use('/nft', nftRouter)
 app.use('/users', userRouter)
 
 //  Listening
