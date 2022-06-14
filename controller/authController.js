@@ -336,7 +336,7 @@ const changeUserStatus = async (req, res) => {
 
 const setactivity = async (req, res) => {
     try {
-        const { activity, timestamp, img, address } = req.body
+        const { activity, timestamp, img, address, price } = req.body
         await User.updateOne(
             { walletAddress: address },
             {
@@ -345,6 +345,7 @@ const setactivity = async (req, res) => {
                         activity: activity,
                         timestamp: timestamp,
                         img: img,
+                        price: price,
                     },
                 },
             },
