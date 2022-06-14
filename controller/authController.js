@@ -1,4 +1,5 @@
 const Token = require('../models/Token')
+const url = require('url')
 const User = require('../models/User')
 const CryptoJS = require('crypto-js')
 const crypto = require('crypto')
@@ -10,8 +11,9 @@ const {
     createHash,
     createWalletAddressPayload,
 } = require('../utils')
+const { default: axios } = require('axios')
 
-const login = async function (req, res) {
+const login = async (req, res) => {
     try {
         const { address } = req.body
 
@@ -39,7 +41,7 @@ const login = async function (req, res) {
     }
 }
 
-const getAllSuperAdmin = async function (req, res) {
+const getAllSuperAdmin = async (req, res) => {
     try {
         const superAdmin = await User.find({ isSuperAdmin: true })
 
@@ -53,7 +55,7 @@ const getAllSuperAdmin = async function (req, res) {
     }
 }
 
-const getAllAdmin = async function (req, res) {
+const getAllAdmin = async (req, res) => {
     try {
         const admin = await User.find({ isAdmin: true })
 
@@ -67,7 +69,121 @@ const getAllAdmin = async function (req, res) {
     }
 }
 
-const changeUserStatus = async function (req, res) {
+const addToDiscord = async (req, res) => {
+    try {
+        const { address, discordData } = req.body
+
+        if (address === undefined || address === '') {
+            res.json({ status: 401, msg: 'Address is required' })
+            return
+        }
+
+        query = { walletAddress: address }
+        const checkWallet = await User.findOne(query)
+
+        if (checkWallet) {
+            const response = await User.updateOne(query, {
+                $set: {
+                    isDiscordConnected: true,
+                    discordInfo: discordData,
+                },
+            })
+
+            res.json({ status: 200, msg: 'Discord Connected', data: response })
+            return
+        } else {
+            res.json({ status: 500, msg: 'User does not exist' })
+            return
+        }
+    } catch (error) {
+        res.json({ status: 500, msg: error.toString() })
+        return
+    }
+}
+
+const removeDiscord = async (req, res) => {
+    try {
+        const { address } = req.body
+
+        if (address === undefined || address === '') {
+            res.json({ status: 401, msg: 'Address is required' })
+            return
+        }
+
+        query = { walletAddress: address }
+        const checkWallet = await User.findOne(query)
+
+        if (checkWallet) {
+            const response = await User.updateOne(query, {
+                $set: {
+                    isDiscordConnected: false,
+                    // discordInfo: {},
+                },
+            })
+
+            res.json({
+                status: 200,
+                msg: 'Discord Disconnected',
+                data: response,
+            })
+            return
+        } else {
+            res.json({ status: 500, msg: 'User does not exist' })
+            return
+        }
+    } catch (error) {
+        res.json({ status: 500, msg: error.toString() })
+        return
+    }
+}
+
+const connectToDiscord = async (req, res) => {
+    try {
+        const API_ENDPOINT = 'https://discord.com/api/v10'
+        const CLIENT_ID = '986223367449366568'
+        const CLIENT_SECRET = 'fRuIQgYt9n62b1eJ2T1TezSkjEl6Fod8'
+        const REDIRECT_URI = `${process.env.APP_FRONTEND_URL}/api/auth/discord/redirect`
+        const { code } = req.body
+
+        if (!code) {
+            res.json({ status: 401, msg: 'Code is required' })
+            return
+        }
+
+        const formData = new url.URLSearchParams({
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: REDIRECT_URI,
+        })
+
+        await axios
+            .post(`${API_ENDPOINT}/oauth2/token`, formData.toString())
+            .then(async (response) => {
+                const { access_token, refresh_token } = response.data
+                // https://discord.com/api/v10/users/@me
+                res.json({
+                    status: 200,
+                    access_token: access_token,
+                    refresh_token: refresh_token,
+                })
+                return
+            })
+            .catch((err) => {
+                res.json({
+                    status: 500,
+                    msg: err.response.data.error || err.toString(),
+                })
+                return
+            })
+    } catch (error) {
+        res.json({ status: 500, msg: error.toString() })
+        return
+    }
+}
+
+const changeUserStatus = async (req, res) => {
     let userId
     if (req.body.email) {
         const userData = await User.findOne({
@@ -218,7 +334,7 @@ const changeUserStatus = async function (req, res) {
     }
 }
 
-const setactivity = async function (req, res) {
+const setactivity = async (req, res) => {
     try {
         const { activity, timestamp, img, address } = req.body
         await User.updateOne(
@@ -241,7 +357,7 @@ const setactivity = async function (req, res) {
     }
 }
 
-const getactivity = async function (req, res) {
+const getactivity = async (req, res) => {
     try {
         const userActivity = await User.findOne({
             walletAddress: req.body.address,
@@ -258,5 +374,8 @@ module.exports = {
     getAllAdmin,
     changeUserStatus,
     setactivity,
+    addToDiscord,
+    connectToDiscord,
     getactivity,
+    removeDiscord,
 }

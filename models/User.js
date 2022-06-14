@@ -10,6 +10,14 @@ const UserSchema = new Schema(
         },
         isAdmin: { type: Boolean, default: false },
         isSuperAdmin: { type: Boolean, default: false },
+        isDiscordConnected: {
+            type: Boolean,
+            default: false,
+        },
+        discordInfo: {
+            type: Object,
+            default: {},
+        },
         isVerified: {
             type: Boolean,
             default: false,

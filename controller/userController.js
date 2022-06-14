@@ -80,4 +80,21 @@ const participateEvent = async (req, res) => {
     }
 }
 
-module.exports = { updateProfile, participateEvent }
+const userInfo = async (req, res) => {
+    try {
+        const { address } = req.body
+        if (!address) {
+            res.status(401).json({ msg: 'User not found' })
+            return
+        }
+
+        const data = await User.findOne({ walletAddress: address })
+        res.json({ status: 200, userInfo: data })
+        return
+    } catch (err) {
+        console.log(err)
+        res.status(501).json({ msg: err.toString() })
+    }
+}
+
+module.exports = { updateProfile, participateEvent, userInfo }
