@@ -162,13 +162,89 @@ const connectToDiscord = async (req, res) => {
             .post(`${API_ENDPOINT}/oauth2/token`, formData.toString())
             .then(async (response) => {
                 const { access_token, refresh_token } = response.data
-                // https://discord.com/api/v10/users/@me
-                res.json({
-                    status: 200,
-                    access_token: access_token,
-                    refresh_token: refresh_token,
-                })
-                return
+                await axios
+                    .get(`https://discord.com/api/v10/users/@me`, {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            Authorization: 'Bearer ' + access_token,
+                        },
+                    })
+                    .then(async (response) => {
+                        let userData = response.data
+                        await axios
+                            .get(
+                                `https://discord.com/api/v10/guilds/987019222192382092/members/${userData.id}`,
+                                {
+                                    headers: {
+                                        'Content-Type':
+                                            'application/x-www-form-urlencoded',
+                                        Authorization:
+                                            'Bot OTg2MjIzMzY3NDQ5MzY2NTY4.Gt9vgN.vU7TyyXoG1KtBNXSjw4XN1rYn25fopReyfxWJo',
+                                    },
+                                }
+                            )
+                            .then(async (response) => {
+                                const userRoles = response.data.roles
+                                await axios
+                                    .get(
+                                        `https://discord.com/api/v10/guilds/987019222192382092/roles`,
+                                        {
+                                            headers: {
+                                                'Content-Type':
+                                                    'application/x-www-form-urlencoded',
+                                                Authorization:
+                                                    'Bot OTg2MjIzMzY3NDQ5MzY2NTY4.Gt9vgN.vU7TyyXoG1KtBNXSjw4XN1rYn25fopReyfxWJo',
+                                            },
+                                        }
+                                    )
+                                    .then((response) => {
+                                        const defaultRoles = response.data
+                                        let roles = []
+                                        userRoles.forEach((r) => {
+                                            defaultRoles.forEach((f) => {
+                                                if (f.id === r) {
+                                                    roles.push({
+                                                        id: f.id,
+                                                        name: f.name,
+                                                    })
+                                                }
+                                            })
+                                        })
+                                        userData = { ...userData, roles }
+                                        res.json({
+                                            status: 200,
+                                            msg: 'Success',
+                                            userData,
+                                        })
+                                        return
+                                    })
+                                    .catch((err) => {
+                                        res.json({
+                                            status: 500,
+                                            msg:
+                                                err.response.data.error ||
+                                                err.toString(),
+                                        })
+                                        return
+                                    })
+                            })
+                            .catch((err) => {
+                                res.json({
+                                    status: 500,
+                                    msg:
+                                        err.response.data.error ||
+                                        err.toString(),
+                                })
+                                return
+                            })
+                    })
+                    .catch((err) => {
+                        res.json({
+                            status: 500,
+                            msg: err.response.data.error || err.toString(),
+                        })
+                        return
+                    })
             })
             .catch((err) => {
                 res.json({

@@ -46,36 +46,32 @@ const updateProfile = async (req, res) => {
 
 const participateEvent = async (req, res) => {
     try {
-        const { _id, username, participatedBy } = req.body
+        const { _id, username, participatedBy, roles } = req.body
         if (!_id || !participatedBy || !username) {
             res.status(401).json({ msg: 'You are not allowed to participate' })
             return
         }
         const nft = await Nft.findOne({ _id })
         if (nft) {
-            if (nft.isParticipated) {
-                res.status(401).json({ msg: 'Already Participated' })
-                return
-            } else {
-                const updateNft = await Nft.updateOne(
-                    { _id },
-                    {
-                        $set: {
-                            isParticipated: true,
+            const updateNft = await Nft.updateOne(
+                { _id },
+                {
+                    $set: {
+                        isParticipated: true,
+                    },
+                    $push: {
+                        participatedBy: {
+                            participant: participatedBy,
+                            timestamp: new Date().getTime(),
+                            username,
+                            roles,
                         },
-                        $push: {
-                            participatedBy: {
-                                participant: participatedBy,
-                                timestamp: new Date().getTime(),
-                                username,
-                            },
-                        },
-                    }
-                )
+                    },
+                }
+            )
 
-                res.status(200).json({ msg: 'Success', data: updateNft })
-                return
-            }
+            res.status(200).json({ msg: 'Success', data: updateNft })
+            return
         } else {
             res.status(500).json({ msg: 'Something went wrong' })
             return
