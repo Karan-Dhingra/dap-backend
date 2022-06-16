@@ -42,7 +42,8 @@ const nftSchema = new Schema(
             default: false,
         },
         participatedBy: {
-            type: 'string',
+            type: Array,
+            default: [],
         },
     },
     { timestamps: true }

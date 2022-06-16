@@ -46,8 +46,8 @@ const updateProfile = async (req, res) => {
 
 const participateEvent = async (req, res) => {
     try {
-        const { _id, participatedBy } = req.body
-        if (!_id || !participatedBy) {
+        const { _id, username, participatedBy } = req.body
+        if (!_id || !participatedBy || !username) {
             res.status(401).json({ msg: 'You are not allowed to participate' })
             return
         }
@@ -62,7 +62,13 @@ const participateEvent = async (req, res) => {
                     {
                         $set: {
                             isParticipated: true,
-                            participatedBy,
+                        },
+                        $push: {
+                            participatedBy: {
+                                participant: participatedBy,
+                                timestamp: new Date().getTime(),
+                                username,
+                            },
                         },
                     }
                 )
