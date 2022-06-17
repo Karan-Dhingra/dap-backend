@@ -45,6 +45,18 @@ const nftSchema = new Schema(
             type: Array,
             default: [],
         },
+        personName: {
+            type: Array,
+            default: [],
+        },
+        specialRoleLimit: {
+            type: String,
+            default: 1,
+        },
+        defaultRoleLimit: {
+            type: String,
+            default: 1,
+        },
     },
     { timestamps: true }
 )

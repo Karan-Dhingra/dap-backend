@@ -41,10 +41,14 @@ const createNft = async (req, res) => {
                     timer: nft.timer,
                     nftImage: nft.nftImage,
                     owner: nft.owner,
+                    defaultRoleLimit: nft.defaultRoleLimit,
+                    specialRoleLimit: nft.specialRoleLimit,
+                    personName: nft.personName,
                 })
 
                 await createNft.save()
 
+                console.log(createNft)
                 res.json({
                     status: 200,
                     msg: 'Nft Created successfully!!',
@@ -152,6 +156,9 @@ const updateNft = async (req, res) => {
                             timer: nft.timer,
                             nftImage: nft.nftImage,
                             owner: nft.owner,
+                            defaultRoleLimit: nft.defaultRoleLimit,
+                            specialRoleLimit: nft.specialRoleLimit,
+                            personName: nft.personName,
                         },
                     }
                 )

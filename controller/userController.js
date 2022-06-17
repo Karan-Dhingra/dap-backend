@@ -2,6 +2,7 @@ const CryptoJS = require('crypto-js')
 const crypto = require('crypto')
 const Nft = require('../models/Nft')
 const User = require('../models/User')
+const { default: axios } = require('axios')
 
 const updateProfile = async (req, res) => {
     const { profilePic, userId } = req.body
@@ -99,4 +100,40 @@ const userInfo = async (req, res) => {
     }
 }
 
-module.exports = { updateProfile, participateEvent, userInfo }
+const getDiscord = async (req, res) => {
+    try {
+        await axios
+            .get(
+                `https://discord.com/api/v10/guilds/987019222192382092/roles`,
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization:
+                            'Bot OTg2MjIzMzY3NDQ5MzY2NTY4.Gt9vgN.vU7TyyXoG1KtBNXSjw4XN1rYn25fopReyfxWJo',
+                    },
+                }
+            )
+            .then((response) => {
+                const roles = response.data
+                // console.log(roles)
+                res.json({
+                    status: 200,
+                    msg: 'Success',
+                    roles,
+                })
+                return
+            })
+            .catch((err) => {
+                res.json({
+                    status: 500,
+                    msg: err.response.data.error || err.toString(),
+                })
+                return
+            })
+    } catch (error) {
+        res.json({ status: 500, msg: error.toString() })
+        return
+    }
+}
+
+module.exports = { updateProfile, participateEvent, userInfo, getDiscord }
