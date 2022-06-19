@@ -27,7 +27,7 @@ const nftSchema = new Schema(
         },
         timer: {
             type: String,
-            required: true,
+            // required: true,
         },
         nftImage: {
             type: 'string',

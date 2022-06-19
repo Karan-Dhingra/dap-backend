@@ -21,6 +21,10 @@ const createNft = async (req, res) => {
             res.json({ status: 404, msg: 'Nft Type is required!' })
             return
         }
+        if (!nft.timer && nft.nftType !== 3) {
+            res.json({ status: 404, msg: 'Timer is required!' })
+            return
+        }
         if (!nft.nftImage) {
             res.json({ status: 404, msg: 'Nft Image is required!' })
             return
