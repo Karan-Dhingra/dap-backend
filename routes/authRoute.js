@@ -10,6 +10,7 @@ const {
     getactivity,
     addToDiscord,
     connectToDiscord,
+    stakeData,
     removeDiscord,
 } = require('../controller/authController')
 const { authenticateUser } = require('../middleware/authentication')
@@ -23,5 +24,6 @@ router.post('/connectToDiscord', cors(), connectToDiscord)
 router.post('/deleteDiscord', cors(), removeDiscord)
 router.post('/activity', cors(), setactivity)
 router.post('/getactivity', cors(), getactivity)
+router.get('/stakeData', cors(), stakeData)
 
 module.exports = router

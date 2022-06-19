@@ -104,12 +104,11 @@ const getDiscord = async (req, res) => {
     try {
         await axios
             .get(
-                `https://discord.com/api/v10/guilds/987019222192382092/roles`,
+                `https://discord.com/api/v10/guilds/${process.env.DISCORD_GUILD_ID}/roles`,
                 {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        Authorization:
-                            'Bot OTg2MjIzMzY3NDQ5MzY2NTY4.Gt9vgN.vU7TyyXoG1KtBNXSjw4XN1rYn25fopReyfxWJo',
+                        Authorization: 'Bot ' + process.env.DISCORD_BOT_ID,
                     },
                 }
             )

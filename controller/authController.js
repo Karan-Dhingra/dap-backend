@@ -140,8 +140,8 @@ const removeDiscord = async (req, res) => {
 const connectToDiscord = async (req, res) => {
     try {
         const API_ENDPOINT = 'https://discord.com/api/v10'
-        const CLIENT_ID = '986223367449366568'
-        const CLIENT_SECRET = 'fRuIQgYt9n62b1eJ2T1TezSkjEl6Fod8'
+        const CLIENT_ID = process.env.DISCORD_CLIENT_ID
+        const CLIENT_SECRET = process.env.DISCORD_SECRET_KEY
         const REDIRECT_URI = `${process.env.APP_FRONTEND_URL}/api/auth/discord/redirect`
         const { code } = req.body
 
@@ -162,6 +162,7 @@ const connectToDiscord = async (req, res) => {
             .post(`${API_ENDPOINT}/oauth2/token`, formData.toString())
             .then(async (response) => {
                 const { access_token, refresh_token } = response.data
+                console.log(access_token)
                 await axios
                     .get(`https://discord.com/api/v10/users/@me`, {
                         headers: {
@@ -173,13 +174,13 @@ const connectToDiscord = async (req, res) => {
                         let userData = response.data
                         await axios
                             .get(
-                                `https://discord.com/api/v10/guilds/987019222192382092/members/${userData.id}`,
+                                `https://discord.com/api/v10/guilds/${process.env.DISCORD_GUILD_ID}/members/${userData.id}`,
                                 {
                                     headers: {
                                         'Content-Type':
                                             'application/x-www-form-urlencoded',
                                         Authorization:
-                                            'Bot OTg2MjIzMzY3NDQ5MzY2NTY4.Gt9vgN.vU7TyyXoG1KtBNXSjw4XN1rYn25fopReyfxWJo',
+                                            'Bot ' + process.env.DISCORD_BOT_ID,
                                     },
                                 }
                             )
@@ -187,13 +188,14 @@ const connectToDiscord = async (req, res) => {
                                 const userRoles = response.data.roles
                                 await axios
                                     .get(
-                                        `https://discord.com/api/v10/guilds/987019222192382092/roles`,
+                                        `https://discord.com/api/v10/guilds/${process.env.DISCORD_GUILD_ID}/roles`,
                                         {
                                             headers: {
                                                 'Content-Type':
                                                     'application/x-www-form-urlencoded',
                                                 Authorization:
-                                                    'Bot OTg2MjIzMzY3NDQ5MzY2NTY4.Gt9vgN.vU7TyyXoG1KtBNXSjw4XN1rYn25fopReyfxWJo',
+                                                    'Bot ' +
+                                                    process.env.DISCORD_BOT_ID,
                                             },
                                         }
                                     )
@@ -219,6 +221,8 @@ const connectToDiscord = async (req, res) => {
                                         return
                                     })
                                     .catch((err) => {
+                                        console.log(err)
+
                                         res.json({
                                             status: 500,
                                             msg:
@@ -229,6 +233,8 @@ const connectToDiscord = async (req, res) => {
                                     })
                             })
                             .catch((err) => {
+                                console.log(err)
+
                                 res.json({
                                     status: 500,
                                     msg:
@@ -239,6 +245,7 @@ const connectToDiscord = async (req, res) => {
                             })
                     })
                     .catch((err) => {
+                        console.log(err)
                         res.json({
                             status: 500,
                             msg: err.response.data.error || err.toString(),
@@ -247,6 +254,8 @@ const connectToDiscord = async (req, res) => {
                     })
             })
             .catch((err) => {
+                console.log(err)
+
                 res.json({
                     status: 500,
                     msg: err.response.data.error || err.toString(),
@@ -254,6 +263,8 @@ const connectToDiscord = async (req, res) => {
                 return
             })
     } catch (error) {
+        console.log(error)
+
         res.json({ status: 500, msg: error.toString() })
         return
     }
@@ -445,6 +456,26 @@ const getactivity = async (req, res) => {
     }
 }
 
+const stakeData = async (req, res) => {
+    try {
+        await axios
+            .get(
+                `https://staking.ethx.ai/api/staking?address=0x5a096B978810F1EaF25F653F85563Cea583003A3`
+            )
+            .then((res) => {
+                console.log(res.data)
+                const data = res.data
+                res.json({ status: 200, msg: 'Success', data })
+            })
+            .catch((err) => {
+                console.log(err)
+                res.json({ status: 400, msg: err.toString() })
+            })
+    } catch (error) {
+        res.json({ status: 400, msg: error.toString() })
+    }
+}
+
 module.exports = {
     login,
     getAllSuperAdmin,
@@ -454,5 +485,6 @@ module.exports = {
     addToDiscord,
     connectToDiscord,
     getactivity,
+    stakeData,
     removeDiscord,
 }
