@@ -10,7 +10,6 @@ const nftSchema = new Schema(
         },
         description: {
             type: 'string',
-            required: true,
         },
         price: {
             type: 'string',
@@ -27,7 +26,8 @@ const nftSchema = new Schema(
             // 2. Scratch Card
         },
         timer: {
-            type: Date,
+            type: String,
+            required: true,
         },
         nftImage: {
             type: 'string',

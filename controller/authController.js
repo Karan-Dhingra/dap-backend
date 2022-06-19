@@ -117,7 +117,7 @@ const removeDiscord = async (req, res) => {
             const response = await User.updateOne(query, {
                 $set: {
                     isDiscordConnected: false,
-                    // discordInfo: {},
+                    discordInfo: {},
                 },
             })
 

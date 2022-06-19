@@ -9,8 +9,8 @@ const createNft = async (req, res) => {
             res.json({ status: 404, msg: 'Name is required!' })
             return
         }
-        if (!nft.description) {
-            res.json({ status: 404, msg: 'Description is required!' })
+        if (!nft.timer) {
+            res.json({ status: 404, msg: 'Timer is required!' })
             return
         }
         if (!nft.price) {
@@ -121,8 +121,8 @@ const updateNft = async (req, res) => {
             res.json({ status: 404, msg: 'Name is required!' })
             return
         }
-        if (!nft.description) {
-            res.json({ status: 404, msg: 'Description is required!' })
+        if (!nft.timer) {
+            res.json({ status: 404, msg: 'Timer is required!' })
             return
         }
         if (!nft.price) {
