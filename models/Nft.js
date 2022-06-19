@@ -17,13 +17,14 @@ const nftSchema = new Schema(
         },
         nftType: {
             type: Number,
-            max: 2,
+            max: 3,
             min: 0,
             default: 0,
             required: true,
             // 0. Raphel
             // 1. Whhitelisted
             // 2. Scratch Card
+            // 3. Item Card
         },
         timer: {
             type: String,
