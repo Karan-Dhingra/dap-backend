@@ -51,11 +51,11 @@ const nftSchema = new Schema(
             default: [],
         },
         specialRoleLimit: {
-            type: String,
+            type: Number,
             default: 1,
         },
         defaultRoleLimit: {
-            type: String,
+            type: Number,
             default: 1,
         },
     },

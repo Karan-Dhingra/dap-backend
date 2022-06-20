@@ -4,7 +4,7 @@ const User = require('../models/User')
 const createNft = async (req, res) => {
     try {
         const nft = req.body
-        console.log(nft)
+        // console.log(nft)
         if (!nft.name) {
             res.json({ status: 404, msg: 'Name is required!' })
             return
@@ -52,7 +52,7 @@ const createNft = async (req, res) => {
 
                 await createNft.save()
 
-                console.log(createNft)
+                // console.log(createNft)
                 res.json({
                     status: 200,
                     msg: 'Nft Created successfully!!',
@@ -116,7 +116,7 @@ const deleteNft = async (req, res) => {
 const updateNft = async (req, res) => {
     try {
         const nft = req.body
-        console.log(nft)
+        console.log('UPDATE THIS NFT:', nft)
         if (!nft._id) {
             res.json({ status: 404, msg: 'Id is required!' })
             return
@@ -137,6 +137,10 @@ const updateNft = async (req, res) => {
             res.json({ status: 404, msg: 'Nft Type is required!' })
             return
         }
+        // if (!nft.timer && nft.nftType !== 3) {
+        //     res.json({ status: 404, msg: 'Timer is required!' })
+        //     return
+        // }
         if (!nft.nftImage) {
             res.json({ status: 404, msg: 'Nft Image is required!' })
             return
